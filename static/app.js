@@ -1,6 +1,6 @@
 // ── WebSocket ────────────────────────────────────────────────────────────────
-const wsProto = location.protocol === "https:" ? "wss" : "ws";
-const ws = new WebSocket(`${wsProto}://${location.host}/ws`);
+const wsProtocol = location.protocol === "https:" ? "wss" : "ws";
+const ws = new WebSocket(`${wsProtocol}://${location.host}/ws`);
 
 // ── Client state ─────────────────────────────────────────────────────────────
 const state = {
@@ -73,7 +73,7 @@ function renderNight() {
   $("daySection").classList.add("hidden");
 
   // hide all status messages first
-  ["nightDone", "nightSleep", "nightDead"].forEach((id) => $(`${id}`).classList.add("hidden"));
+  ["nightDone", "nightSleep", "nightDead"].forEach((id) => $(id).classList.add("hidden"));
   $("nightTargets").innerHTML = "";
 
   const me = state.me;

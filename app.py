@@ -87,6 +87,10 @@ class GameRoom:
     action_seq: int = 0
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
 
+    def __post_init__(self) -> None:
+        # Ensure each instance gets its own fresh lock (defensive initialisation)
+        self.lock = asyncio.Lock()
+
     # ── Helpers ──────────────────────────────────────────────────────────────
 
     def append_event(self, msg: str) -> None:
