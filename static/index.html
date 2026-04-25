@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ночь ниндзя LAN</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+<main>
+
+  <!-- ═══════════════════════════ LOBBY ═══════════════════════════ -->
+  <section id="lobbySection" class="screen">
+    <div class="logo">🥷</div>
+    <h1>Ночь ниндзя</h1>
+    <p class="subtitle">Социальная игра для компании · локальная сеть</p>
+
+    <div id="joinCard" class="card">
+      <label for="nameInput">Ваше имя</label>
+      <input id="nameInput" type="text" maxlength="30" placeholder="Введите имя..." autocomplete="off" />
+      <button id="joinBtn" class="primary">Войти в игру</button>
+    </div>
+
+    <div id="waitCard" class="card hidden">
+      <p>Вы вошли как <strong id="lobbyMyName">—</strong></p>
+      <p id="lobbyHostHint" class="hint hidden">Вы ведущий 👑. Нажмите «Начать», когда все подключатся.</p>
+      <button id="startBtn" class="primary hidden">Начать игру</button>
+      <p class="hint">Минимум 4 игрока. Больше — интереснее!</p>
+    </div>
+
+    <div class="card">
+      <h2>Подключились (<span id="lobbyCount">0</span>)</h2>
+      <ul id="lobbyList" class="player-list"></ul>
+    </div>
+
+    <details class="card rules-card">
+      <summary>📖 Правила игры</summary>
+      <div class="rules-body">
+        <h3>Роли</h3>
+        <ul>
+          <li><span class="ri ninja">🥷 Ниндзя</span> — скрытый убийца. Каждую ночь ниндзя вместе выбирают жертву. Ниндзя видят друг друга. <em>Цель: сравняться по числу с самураями.</em></li>
+          <li><span class="ri samurai">⚔️ Самурай</span> — обычный житель деревни. <em>Цель: уничтожить всех ниндзя.</em></li>
+          <li><span class="ri sensei">🔍 Сэнсэй</span> (5+ игроков) — каждую ночь узнаёт, является ли выбранный игрок ниндзя.</li>
+          <li><span class="ri healer">💚 Целитель</span> (7+ игроков) — каждую ночь защищает одного игрока от убийства.</li>
+        </ul>
+        <h3>Ход игры</h3>
+        <ol>
+          <li><strong>Ночь:</strong> все закрывают глаза. Ниндзя выбирают жертву, Сэнсэй проверяет игрока, Целитель выбирает кого защитить.</li>
+          <li><strong>День:</strong> объявляется, кто погиб ночью. Все обсуждают и голосуют, кого изгнать.</li>
+          <li>Игра продолжается до победы одной из сторон.</li>
+        </ol>
+        <h3>Победа</h3>
+        <ul>
+          <li>⚔️ Самураи побеждают, когда все ниндзя уничтожены.</li>
+          <li>🥷 Ниндзя побеждают, когда их число равно или превышает число самураев.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ═══════════════════════════ GAME ════════════════════════════ -->
+  <section id="gameSection" class="screen hidden">
+
+    <div class="game-header card">
+      <div>
+        <h1>🥷 Ночь ниндзя</h1>
+        <p id="phaseLabel" class="phase-label">—</p>
+      </div>
+      <div class="my-info">
+        <span id="myRoleBadge" class="role-badge">—</span>
+        <span id="myNameLabel" class="my-name">—</span>
+      </div>
+    </div>
+
+    <!-- ── NIGHT ── -->
+    <div id="nightSection" class="hidden">
+      <div id="nightCard" class="card">
+        <h2 id="nightTitle">Ночное действие</h2>
+        <p id="nightDesc" class="hint"></p>
+        <div id="nightTargets" class="target-list"></div>
+        <p id="nightDone" class="status-ok hidden">✅ Ваш выбор принят. Ожидаем остальных...</p>
+        <p id="nightSleep" class="status-muted hidden">😴 Деревня спит. Ниндзя действуют в тени...</p>
+        <p id="nightDead" class="status-muted hidden">💀 Вы мертвы и не участвуете в ночных событиях.</p>
+      </div>
+    </div>
+
+    <!-- ── DAY ── -->
+    <div id="daySection" class="hidden">
+      <div class="card">
+        <h2>Результат ночи</h2>
+        <p id="nightResultMsg" class="night-result">—</p>
+        <div id="senseiBox" class="sensei-box hidden">
+          <p class="hint">🔍 Результат вашей проверки (виден только вам):</p>
+          <p id="senseiText" class="sensei-text">—</p>
+        </div>
+      </div>
+
+      <div id="voteCard" class="card">
+        <h2>Голосование</h2>
+        <p class="hint">Кого изгнать из деревни? Голосуйте — все видят только итог.</p>
+        <div id="voteTargets" class="target-list"></div>
+        <button id="abstainBtn" class="secondary">🤐 Воздержаться</button>
+        <p id="voteDone" class="status-ok hidden">✅ Ваш голос принят. Ожидаем остальных...</p>
+        <p id="voteDead" class="status-muted hidden">💀 Вы мертвы и не можете голосовать.</p>
+      </div>
+    </div>
+
+    <!-- ── PLAYERS ── -->
+    <div class="card">
+      <h2>Игроки</h2>
+      <ul id="playersList" class="player-list"></ul>
+    </div>
+
+    <!-- ── LOG ── -->
+    <div class="card log-card">
+      <h2>Журнал событий</h2>
+      <ul id="eventLog" class="log-list"></ul>
+    </div>
+
+  </section>
+
+  <!-- ════════════════════════ FINISH ═════════════════════════════ -->
+  <section id="finishSection" class="screen hidden">
+    <div class="logo" id="finishEmoji">🏆</div>
+    <h1 id="finishTitle">Игра окончена</h1>
+    <p id="finishSub" class="subtitle"></p>
+
+    <div class="card">
+      <h2>Итоговые роли</h2>
+      <ul id="finalPlayers" class="player-list"></ul>
+    </div>
+
+    <div class="card log-card">
+      <h2>Журнал игры</h2>
+      <ul id="finalLog" class="log-list"></ul>
+    </div>
+
+    <button id="resetBtn" class="primary hidden">🔄 Новая игра</button>
+  </section>
+
+</main>
+
+<div id="toast" class="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>
